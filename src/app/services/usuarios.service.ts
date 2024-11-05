@@ -1,49 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Usuario {
   id?: number;
-  rut: string; // Puedes ajustar los tipos según tu necesidad
+  rut: string;
   nombreCompleto: string;
   direccion: string;
   telefono: string;
   email: string;
   fechaNacimiento: string;
   contrasena: string;
-  activo:number;
+  activo: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuariosService {
-  private apiUrl = 'http://localhost:3000/usuarios'; // URL de tu servidor JSON o API REST
+  private apiUrl = 'http://localhost:3000/usuarios';
 
   constructor(private http: HttpClient) {}
 
-  // Obtener todos los usuarios
   getUsuarios(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.apiUrl);
   }
 
-  // Añadir un nuevo usuario
   addUsuario(usuario: Usuario): Observable<Usuario> {
     return this.http.post<Usuario>(this.apiUrl, usuario);
   }
 
-  // Actualizar un usuario existente
   updateUsuario(rut: string, usuario: Usuario): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.apiUrl}/${rut}`, usuario); // Petición PUT para actualizar
+    return this.http.put<Usuario>(`${this.apiUrl}/${rut}`, usuario);
   }
 
-  // Eliminar un usuario
   deleteUsuario(rut: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${rut}`);
   }
 
-  // Verificar si el usuario ya existe
+  // Modificación en checkUserExists
   checkUserExists(rut: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/exists/${rut}`);
+    return this.http.get<Usuario[]>(`${this.apiUrl}?rut=${rut}`).pipe(
+      map((usuarios: Usuario[]) => usuarios.length > 0)
+    );
   }
 }

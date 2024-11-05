@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
 import { DatabaseService } from '../services/database.service';
 import { UsuariosService } from '../services/usuarios.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-registro',
@@ -9,7 +10,6 @@ import { UsuariosService } from '../services/usuarios.service';
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage {
-  // Definición de los campos de usuario
   rut: string = '';
   nombreCompleto: string = '';
   direccion: string = '';
@@ -18,8 +18,6 @@ export class RegisterPage {
   fechaNacimiento: string = '';
   contrasena: string = '';
   recontrasena: string = '';
-
-  // Definición de variables para errores
   rutError: string = '';
   nombreCompletoError: string = '';
   direccionError: string = '';
@@ -28,8 +26,6 @@ export class RegisterPage {
   fechaError: string = '';
   contrasenaError: string = '';
   error: string = '';
-
-  // Control de visibilidad de las contraseñas
   mostrarContrasena: boolean = false;
   mostrarRecontrasena: boolean = false;
 
@@ -37,11 +33,10 @@ export class RegisterPage {
     private navCtrl: NavController,
     private toastController: ToastController,
     private dbService: DatabaseService,
-    private usuariosService: UsuariosService // Inyecta el UsuariosService
+    private usuariosService: UsuariosService
   ) {}
 
   async enviarRegistro() {
-    // Limpiar mensajes de error al inicio
     this.rutError = '';
     this.nombreCompletoError = '';
     this.direccionError = '';
@@ -51,9 +46,6 @@ export class RegisterPage {
     this.contrasenaError = '';
     this.error = '';
 
-    // Validaciones para cada campo
-    // (aquí va la lógica de validación de cada campo como la tienes en tu código)
-
     if (
       this.error || this.rutError || this.nombreCompletoError || this.direccionError || 
       this.telefonoError || this.emailError || this.fechaError || this.contrasenaError
@@ -61,55 +53,60 @@ export class RegisterPage {
       return;
     }
 
-    const userExists = await this.dbService.checkUserExists(this.rut);
-    if (userExists) {
-      this.rutError = 'El usuario ya existe.';
-      return;
-    }
+    try {
+      const userExistsInSQLite = await this.dbService.checkUserExists(this.rut);
+      const userExistsInJSONServer = await firstValueFrom(this.usuariosService.checkUserExists(this.rut));
 
-    // Almacenar el usuario en SQLite
-    const usuarioGuardado = await this.dbService.addUser(
-      this.rut,
-      this.nombreCompleto,
-      this.direccion,
-      this.telefono,
-      this.email,
-      this.fechaNacimiento,
-      this.contrasena
-    );
-
-    if (!usuarioGuardado) {
-      this.error = 'Error al registrar usuario localmente.';
-      console.error('Error al registrar usuario localmente.');
-      return;
-    }
-
-    // Almacenar el usuario en json-server usando UsuariosService
-    this.usuariosService.addUsuario({
-      rut: this.rut,
-      nombreCompleto: this.nombreCompleto,
-      direccion: this.direccion,
-      telefono: this.telefono,
-      email: this.email,
-      fechaNacimiento: this.fechaNacimiento,
-      contrasena: this.contrasena,
-      activo: 1 // Añadir la propiedad activo con valor predeterminado
-    }).subscribe({
-      next: async () => {
-        const toast = await this.toastController.create({
-          message: 'Registro exitoso',
-          duration: 2000,
-          color: 'success',
-        });
-        toast.present();
-        this.mostrarUsuariosGuardados();
-        this.navCtrl.navigateForward('/login');
-      },
-      error: (err) => {
-        this.error = 'Error al registrar usuario en el servidor.';
-        console.error('Error al registrar usuario en el servidor:', err);
+      if (userExistsInSQLite || userExistsInJSONServer) {
+        this.rutError = 'El usuario ya existe.';
+        return;
       }
-    });
+
+      const usuarioGuardado = await this.dbService.addUser(
+        this.rut,
+        this.nombreCompleto,
+        this.direccion,
+        this.telefono,
+        this.email,
+        this.fechaNacimiento,
+        this.contrasena
+      );
+
+      if (!usuarioGuardado) {
+        this.error = 'Error al registrar usuario localmente.';
+        console.error('Error al registrar usuario localmente.');
+        return;
+      }
+
+      this.usuariosService.addUsuario({
+        rut: this.rut,
+        nombreCompleto: this.nombreCompleto,
+        direccion: this.direccion,
+        telefono: this.telefono,
+        email: this.email,
+        fechaNacimiento: this.fechaNacimiento,
+        contrasena: this.contrasena,
+        activo: 1
+      }).subscribe({
+        next: async () => {
+          const toast = await this.toastController.create({
+            message: 'Registro exitoso',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+          this.mostrarUsuariosGuardados();
+          this.navCtrl.navigateForward('/login');
+        },
+        error: (err) => {
+          this.error = 'Error al registrar usuario en el servidor.';
+          console.error('Error al registrar usuario en el servidor:', err);
+        }
+      });
+    } catch (error) {
+      console.error('Error en el proceso de registro:', error);
+      this.error = 'Ocurrió un problema durante el registro.';
+    }
   }
 
   async mostrarUsuariosGuardados() {
@@ -122,7 +119,6 @@ export class RegisterPage {
     return emailPattern.test(email);
   }
 
-  // Funciones para mostrar/ocultar contraseñas
   toggleMostrarClave() {
     this.mostrarContrasena = !this.mostrarContrasena;
   }
