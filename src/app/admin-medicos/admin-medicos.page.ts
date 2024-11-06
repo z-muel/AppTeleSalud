@@ -43,8 +43,8 @@ export class AdminMedicosPage implements OnInit {
     if (success) this.loadMedicos();
   }
 
-  async deleteMedico(id: number) {
-    const success = await this.databaseService.deleteDoctorById(id);
+  async deleteMedico(rut: string) {
+    const success = await this.databaseService.deleteDoctor(rut);
     if (success) this.loadMedicos();
   }
 

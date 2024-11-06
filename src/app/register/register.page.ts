@@ -67,25 +67,8 @@ export class RegisterPage {
       return;
     }
 
-    // Almacenar el usuario en SQLite
-    const usuarioGuardado = await this.dbService.addUser(
-      this.rut,
-      this.nombreCompleto,
-      this.direccion,
-      this.telefono,
-      this.email,
-      this.fechaNacimiento,
-      this.contrasena
-    );
-
-    if (!usuarioGuardado) {
-      this.error = 'Error al registrar usuario localmente.';
-      console.error('Error al registrar usuario localmente.');
-      return;
-    }
-
-    // Almacenar el usuario en json-server usando UsuariosService
-    this.usuariosService.addUsuario({
+    // Crear objeto de usuario
+    const newUser = {
       rut: this.rut,
       nombreCompleto: this.nombreCompleto,
       direccion: this.direccion,
@@ -94,7 +77,19 @@ export class RegisterPage {
       fechaNacimiento: this.fechaNacimiento,
       contrasena: this.contrasena,
       activo: 1 // Añadir la propiedad activo con valor predeterminado
-    }).subscribe({
+    };
+
+    // Almacenar el usuario en SQLite
+    const usuarioGuardado = await this.dbService.addUser(newUser);
+
+    if (!usuarioGuardado) {
+      this.error = 'Error al registrar usuario localmente.';
+      console.error('Error al registrar usuario localmente.');
+      return;
+    }
+
+    // Almacenar el usuario en json-server usando UsuariosService
+    this.usuariosService.addUsuario(newUser).subscribe({
       next: async () => {
         const toast = await this.toastController.create({
           message: 'Registro exitoso',
