@@ -104,3 +104,12 @@ ion-content[_ngcontent-ng-c1503954710] .header-title[_ngcontent-ng-c1503954710] 
   color: white;
 }
 
+.error {
+  border: 1px solid red;
+}
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+}
+

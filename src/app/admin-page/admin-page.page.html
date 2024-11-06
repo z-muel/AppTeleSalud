@@ -8,9 +8,18 @@
   <ion-list>
     <ion-item *ngFor="let usuario of usuarios">
       <ion-label>{{ usuario.nombreCompleto }} ({{ usuario.rut }})</ion-label>
-      <ion-button (click)="activateUser(usuario.rut)" color="success" *ngIf="usuario.activo === 0">Activar</ion-button>
-      <ion-button (click)="deactivateUser(usuario.rut)" color="warning" *ngIf="usuario.activo === 1">Inactivar</ion-button>
-      <ion-button (click)="deleteUser(usuario.rut)" color="danger">Eliminar</ion-button>
+      <ion-button (click)="activateUser(usuario.rut)" color="success" *ngIf="usuario.activo === 0">
+        Activar
+      </ion-button>
+      <ion-button (click)="deactivateUser(usuario.rut)" color="warning" *ngIf="usuario.activo === 1">
+        Inactivar
+      </ion-button>
+      <ion-button (click)="confirmDeleteUser(usuario.rut)" color="danger">
+        Eliminar
+      </ion-button>
     </ion-item>
   </ion-list>
+
+  <!-- Indicador de carga -->
+  <ion-spinner *ngIf="isLoading" name="dots" class="loading-spinner"></ion-spinner>
 </ion-content>

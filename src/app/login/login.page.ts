@@ -22,7 +22,7 @@ export class LoginPage {
     private navCtrl: NavController,
     private router: Router,
     private toastCtrl: ToastController,
-    private AuthService: AuthService,
+    private authService: AuthService,
     private storage: Storage,
     private userService: UserService
   ) {}
@@ -45,22 +45,32 @@ export class LoginPage {
       this.passwordErrorL = '';
     }
 
-    const isAuthenticated = await this.AuthService.authenticate(this.rut, this.password);
+    try {
+      const isAuthenticated = await this.authService.authenticate(this.rut, this.password);
 
-    if (isAuthenticated) {
-      await this.storage.set('loggedInUser', this.rut);
+      if (isAuthenticated) {
+        await this.storage.set('loggedInUser', this.rut);
 
-      this.getCurrentLocation();
+        this.getCurrentLocation();
 
-      const navigationExtras: NavigationExtras = {
-        state: {
-          rut: this.rut
+        const navigationExtras: NavigationExtras = {
+          state: {
+            rut: this.rut
+          }
+        };
+
+        // Verificar si es un administrador
+        if (this.authService.isAdminUser()) {
+          this.router.navigate(['/admin-page'], navigationExtras); // Redirigir a la página de administración
+        } else {
+          this.router.navigate(['/main'], navigationExtras); // Redirigir a la página principal
         }
-      };
-
-      this.router.navigate(['/main'], navigationExtras);
-    } else {
-      this.showToast('Credenciales incorrectas');
+      } else {
+        this.showToast('Credenciales incorrectas');
+      }
+    } catch (error) {
+      console.error('Error en la autenticación:', error);
+      this.showToast('Hubo un error al iniciar sesión. Inténtalo de nuevo.');
     }
   }
 

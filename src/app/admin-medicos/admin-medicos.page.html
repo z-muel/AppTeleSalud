@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content>
+  <!-- Indicador de carga -->
+  <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+
   <ion-card>
     <ion-card-header>
       <ion-card-title>Agregar Médico</ion-card-title>
@@ -12,31 +15,31 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="stacked">Nombres</ion-label>
-        <ion-input [(ngModel)]="newMedico.nombres"></ion-input>
+        <ion-input [(ngModel)]="newMedico.nombres" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Apellidos</ion-label>
-        <ion-input [(ngModel)]="newMedico.apellidos"></ion-input>
+        <ion-input [(ngModel)]="newMedico.apellidos" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">RUT</ion-label>
-        <ion-input [(ngModel)]="newMedico.rut"></ion-input>
+        <ion-input [(ngModel)]="newMedico.rut" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Especialidad</ion-label>
-        <ion-input [(ngModel)]="newMedico.especialidad"></ion-input>
+        <ion-input [(ngModel)]="newMedico.especialidad" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Área de Salud</ion-label>
-        <ion-input [(ngModel)]="newMedico.areaSalud"></ion-input>
+        <ion-input [(ngModel)]="newMedico.areaSalud" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Teléfono</ion-label>
-        <ion-input [(ngModel)]="newMedico.telefono"></ion-input>
+        <ion-input [(ngModel)]="newMedico.telefono" type="tel" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Correo</ion-label>
-        <ion-input [(ngModel)]="newMedico.correo"></ion-input>
+        <ion-input [(ngModel)]="newMedico.correo" type="email" required></ion-input>
       </ion-item>
       <ion-button expand="block" (click)="addMedico()">Agregar Médico</ion-button>
     </ion-card-content>
@@ -44,9 +47,12 @@
 
   <ion-list>
     <ion-item *ngFor="let medico of medicos">
-      <ion-label>{{ medico.nombres }} {{ medico.apellidos }}</ion-label>
+      <ion-label>
+        <h2>{{ medico.nombres }} {{ medico.apellidos }}</h2>
+        <p>RUT: {{ medico.rut }} | Especialidad: {{ medico.especialidad }}</p>
+      </ion-label>
       <ion-button (click)="updateMedico(medico)" color="primary">Actualizar</ion-button>
-      <ion-button (click)="deleteMedico(medico.rut)" color="danger">Eliminar</ion-button>
+      <ion-button (click)="confirmDeleteMedico(medico.rut)" color="danger">Eliminar</ion-button>
     </ion-item>
   </ion-list>
 </ion-content>

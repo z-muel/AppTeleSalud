@@ -5,15 +5,15 @@
     <div class="Title">Iniciar Sesión</div>
   </div>
 
-  <ion-item>
+  <ion-item [class.error]="usernameErrorL">
     <ion-label position="stacked">RUT</ion-label>
-    <ion-input type="text" [(ngModel)]="rut"></ion-input> <!-- Cambiado de username a rut -->
+    <ion-input type="text" [(ngModel)]="rut"></ion-input>
   </ion-item>
   <div *ngIf="usernameErrorL" class="error-message">
     {{ usernameErrorL }}
   </div>
 
-  <ion-item>
+  <ion-item [class.error]="passwordErrorL">
     <ion-label position="stacked">Contraseña</ion-label>
     <ion-input type="password" [(ngModel)]="password"></ion-input>
   </ion-item>
@@ -25,5 +25,7 @@
   <ion-button expand="full" color="secondary" (click)="crearCuenta()">Crear cuenta</ion-button>
   <ion-button expand="full" fill="clear" color="black" (click)="olvidasteContrasena()">¿Olvidaste tu contraseña?</ion-button>
 
-  <div class="error-message" style="color: red;"></div>
+  <div *ngIf="errorMessages.length > 0" class="error-message" style="color: red;">
+    <div *ngFor="let message of errorMessages">{{ message }}</div>
+  </div>
 </ion-content>
