@@ -1,49 +1,36 @@
 import { Component, OnInit } from '@angular/core';
-import { UsuariosService, Usuario } from '../services/usuarios.service';
+import { DatabaseService } from '../services/database.service';
 
 @Component({
-  selector: 'app-admin',
+  selector: 'app-admin-page',
   templateUrl: './admin-page.page.html',
   styleUrls: ['./admin-page.page.scss'],
 })
 export class AdminPage implements OnInit {
-  usuarios: Usuario[] = [];
+  usuarios: any[] = [];
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(private databaseService: DatabaseService) {}
 
   ngOnInit() {
     this.loadUsuarios();
   }
 
-  loadUsuarios() {
-    this.usuariosService.getUsuarios().subscribe(data => {
-      this.usuarios = data;
-    });
+  async loadUsuarios() {
+    this.usuarios = await this.databaseService.getAllUsers();
   }
 
-  deactivateUser(rut: string) {
-    const usuario = this.usuarios.find(u => u.rut === rut);
-    if (usuario) {
-      usuario.activo = 0;
-      this.usuariosService.updateUsuario(rut, usuario).subscribe(() => {
-        this.loadUsuarios(); // Recargar la lista de usuarios después de actualizar
-      });
-    }
+  async deactivateUser(rut: string) {
+    await this.databaseService.updateUserStatus(rut, 0);
+    this.loadUsuarios();
   }
 
-  activateUser(rut: string) {
-    const usuario = this.usuarios.find(u => u.rut === rut);
-    if (usuario) {
-      usuario.activo = 1;
-      this.usuariosService.updateUsuario(rut, usuario).subscribe(() => {
-        this.loadUsuarios(); // Recargar la lista de usuarios después de actualizar
-      });
-    }
+  async activateUser(rut: string) {
+    await this.databaseService.updateUserStatus(rut, 1);
+    this.loadUsuarios();
   }
 
-  deleteUser(rut: string) {
-    this.usuariosService.deleteUsuario(rut).subscribe(() => {
-      this.loadUsuarios(); // Recargar la lista de usuarios después de eliminar
-    });
+  async deleteUser(rut: string) {
+    await this.databaseService.deleteUser(rut);
+    this.loadUsuarios();
   }
 }

@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Administrar Médicos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Agregar Médico</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Nombres</ion-label>
+        <ion-input [(ngModel)]="newMedico.nombres"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Apellidos</ion-label>
+        <ion-input [(ngModel)]="newMedico.apellidos"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">RUT</ion-label>
+        <ion-input [(ngModel)]="newMedico.rut"></ion-input>
+      </ion-item>
+      <!-- Add other fields like direccion, correo, etc. here -->
+
+      <ion-button expand="block" (click)="addMedico()">Agregar Médico</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list>
+    <ion-item *ngFor="let medico of medicos">
+      <ion-label>{{ medico.nombres }} {{ medico.apellidos }}</ion-label>
+      <ion-button (click)="updateMedico(medico)" color="primary">Actualizar</ion-button>
+      <ion-button (click)="deleteMedico(medico.id)" color="danger">Eliminar</ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>

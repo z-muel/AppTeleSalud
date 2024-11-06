@@ -1,12 +1,16 @@
-<ion-content class="ion-padding">
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Administrar Usuarios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
   <ion-list>
-    <ion-button>INGRESARE</ion-button>
-    <ion-button>EXIT</ion-button>
-    <ion-button color="tertiary">Dar baja</ion-button>
-    <ion-button color="danger">Eliminar</ion-button>
-    <ion-button color="success" >HELLO</ion-button>
-  
+    <ion-item *ngFor="let usuario of usuarios">
+      <ion-label>{{ usuario.nombreCompleto }} ({{ usuario.rut }})</ion-label>
+      <ion-button (click)="activateUser(usuario.rut)" color="success" *ngIf="usuario.activo === 0">Activar</ion-button>
+      <ion-button (click)="deactivateUser(usuario.rut)" color="warning" *ngIf="usuario.activo === 1">Inactivar</ion-button>
+      <ion-button (click)="deleteUser(usuario.rut)" color="danger">Eliminar</ion-button>
+    </ion-item>
   </ion-list>
-  
-   
 </ion-content>

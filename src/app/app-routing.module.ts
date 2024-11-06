@@ -3,15 +3,19 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './services/auth-guard.guard';  // Asegúrate de importar el guard
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  {
-    path: 'login',
-    loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule),
+  { path: '', redirectTo: 'home', pathMatch: 'full' 
+  },
+  { path: 'login', loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule),
+  },
+  { path: 'admin-page', loadChildren: () => import('./admin-page/admin-page.module').then(m => m.AdminPagePageModule), 
+    canActivate: [AuthGuard] 
+  },
+  { path: 'admin-medicos', loadChildren: () => import('./admin-medicos/admin-medicos.module').then(m => m.AdminMedicosPageModule), 
+    canActivate: [AuthGuard] 
   },
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
-    
   },
   {
     path: 'register',
@@ -31,14 +35,18 @@ const routes: Routes = [
     loadChildren: () => import('./citas/citas.module').then(m => m.CitasPageModule),
     canActivate: [AuthGuard],  // Protegiendo la ruta
   },
-
   {
     path: 'main',
     loadChildren: () => import('./main/main.module').then(m => m.MainPageModule),
     canActivate: [AuthGuard], // Protegiendo la ruta
-  },  {
+  },
+  {
     path: 'admin-page',
     loadChildren: () => import('./admin-page/admin-page.module').then( m => m.AdminPagePageModule)
+  },
+  {
+    path: 'admin-medicos',
+    loadChildren: () => import('./admin-medicos/admin-medicos.module').then( m => m.AdminMedicosPageModule)
   },
 
 
