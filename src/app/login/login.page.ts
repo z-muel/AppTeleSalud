@@ -3,7 +3,6 @@ import { NavController, ToastController } from '@ionic/angular';
 import { Router, NavigationExtras } from '@angular/router';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { Storage } from '@ionic/storage-angular';
-import { UserService } from '../services/user.service';
 import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
@@ -23,8 +22,7 @@ export class LoginPage {
     private router: Router,
     private toastCtrl: ToastController,
     private authService: AuthService,
-    private storage: Storage,
-    private userService: UserService
+    private storage: Storage
   ) {}
 
   async login() {

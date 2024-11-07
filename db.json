@@ -1,5 +1,24 @@
 {
-  "users": [],
+  "usuarios": [
+    {
+      "id": 1,
+      "rut": "12345678-9",
+      "nombreCompleto": "Juan Pérez",
+      "direccion": "Calle Falsa 123",
+      "telefono": "987654321",
+      "email": "juan@example.com",
+      "fechaNacimiento": "2000-01-01",
+      "contrasena": "password123",
+      "activo": 1
+    }
+  ],
   "medicos": [],
-  "citas": []
+  "citas": [
+    {
+      "id": "3502",
+      "nombre": "samuel",
+      "fecha": "2024-10-10",
+      "hora": "10:10"
+    }
+  ]
 }

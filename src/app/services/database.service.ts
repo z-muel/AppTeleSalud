@@ -11,16 +11,10 @@ export class DatabaseService {
   readonly dbName: string = 'app_db';
   readonly userTable: string = 'usuarios';
   readonly doctorTable: string = 'medicos';
-  readonly jsonServerUrl: string = 'http://localhost:3000'; // URL de JSON-server
+  readonly jsonServerUrl: string = 'http://localhost:3000/usuarios'; // URL de JSON-server
 
   constructor(private sqlite: SQLite, private http: HttpClient) {
     this.initializeDatabase();
-  }
-
-  private async ensureDatabaseInitialized(): Promise<void> {
-    if (!this.dbInstance) {
-      await this.initializeDatabase();
-    }
   }
 
   async initializeDatabase(): Promise<void> {
@@ -43,9 +37,11 @@ export class DatabaseService {
   }
 
   async createTables(): Promise<void> {
-    await this.ensureDatabaseInitialized();
+    if (!this.dbInstance) {
+      console.error('Database not initialized!');
+      return;
+    }
 
-    // Crear tabla de usuarios
     const userTableSql = `
       CREATE TABLE IF NOT EXISTS ${this.userTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +55,6 @@ export class DatabaseService {
         activo INTEGER DEFAULT 1 
       )`;
 
-    // Crear tabla de médicos
     const doctorTableSql = `
       CREATE TABLE IF NOT EXISTS ${this.doctorTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,15 +70,15 @@ export class DatabaseService {
 
     try {
       console.log('Creando tablas de usuarios y médicos...');
-      await this.dbInstance?.executeSql(userTableSql, []);
-      await this.dbInstance?.executeSql(doctorTableSql, []);
+      await this.dbInstance.executeSql(userTableSql, []);
+      await this.dbInstance.executeSql(doctorTableSql, []);
     } catch (error) {
       console.error('Error al crear las tablas:', error);
     }
   }
 
   async createDefaultAdminUser(): Promise<void> {
-    const adminRut = 'adminRut'; // Reemplaza con el RUT deseado para el administrador
+    const adminRut = 'adminRut';
     const adminUser = await this.getUserByRut(adminRut);
 
     if (!adminUser) {
@@ -109,9 +104,7 @@ export class DatabaseService {
     }
   }
 
-  // Métodos CRUD para usuarios
   async getAllUsers(): Promise<any[]> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return [];
@@ -130,58 +123,22 @@ export class DatabaseService {
     }
   }
 
-  async updateUserStatus(rut: string, activo: number): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
+  async getUserByRut(rut: string): Promise<any | null> {
     if (!this.dbInstance) {
       console.error('Database not initialized!');
-      return false;
-    }
-    const sql = `UPDATE ${this.userTable} SET activo = ? WHERE rut = ?`;
-    try {
-      await this.dbInstance.executeSql(sql, [activo, rut]);
-      console.log(`Usuario con RUT ${rut} actualizado a estado ${activo}`);
-      return true;
-    } catch (error) {
-      console.error('Error al actualizar el estado del usuario:', error);
-      return false;
-    }
-  }
-
-  async deleteUser(rut: string): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
-    if (!this.dbInstance) {
-      console.error('Database not initialized!');
-      return false;
-    }
-    const sql = `DELETE FROM ${this.userTable} WHERE rut = ?`;
-    try {
-      await this.dbInstance.executeSql(sql, [rut]);
-      console.log(`Usuario con RUT ${rut} eliminado exitosamente`);
-      return true;
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      return false;
-    }
-  }
-
-  async checkUserExists(rut: string): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
-    if (!this.dbInstance) {
-      console.error('Database not initialized!');
-      return false;
+      return null;
     }
     const sql = `SELECT * FROM ${this.userTable} WHERE rut = ?`;
     try {
       const res = await this.dbInstance.executeSql(sql, [rut]);
-      return res.rows.length > 0;
+      return res.rows.length > 0 ? res.rows.item(0) : null;
     } catch (error) {
-      console.error('Error al verificar si el usuario existe:', error);
-      return false;
+      console.error('Error al obtener usuario por RUT:', error);
+      return null;
     }
   }
 
   async addUser(user: any): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return false;
@@ -199,7 +156,12 @@ export class DatabaseService {
     ];
     try {
       await this.dbInstance.executeSql(sql, data);
-      console.log('Usuario añadido exitosamente');
+      console.log('Usuario añadido exitosamente a SQLite.');
+
+      // Sincronizar con json-server
+      await lastValueFrom(this.http.post(this.jsonServerUrl, user));
+      console.log('Usuario añadido exitosamente a json-server.');
+
       return true;
     } catch (error) {
       console.error('Error al agregar usuario:', error);
@@ -207,25 +169,22 @@ export class DatabaseService {
     }
   }
 
-  async getUserByRut(rut: string): Promise<any | null> {
-    await this.ensureDatabaseInitialized();
+  async checkUserExists(rut: string): Promise<boolean> {
     if (!this.dbInstance) {
       console.error('Database not initialized!');
-      return null;
+      return false;
     }
     const sql = `SELECT * FROM ${this.userTable} WHERE rut = ?`;
     try {
       const res = await this.dbInstance.executeSql(sql, [rut]);
-      return res.rows.length > 0 ? res.rows.item(0) : null;
+      return res.rows.length > 0;
     } catch (error) {
-      console.error('Error al obtener usuario por RUT:', error);
-      return null;
+      console.error('Error al verificar si el usuario existe:', error);
+      return false;
     }
   }
 
-  // Métodos CRUD para médicos
   async getAllDoctors(): Promise<any[]> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return [];
@@ -245,7 +204,6 @@ export class DatabaseService {
   }
 
   async addDoctor(doctor: any): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return false;
@@ -263,7 +221,12 @@ export class DatabaseService {
     ];
     try {
       await this.dbInstance.executeSql(sql, data);
-      console.log('Médico añadido exitosamente');
+      console.log('Médico añadido exitosamente a SQLite.');
+
+      // Sincronizar con json-server (si es necesario)
+      await lastValueFrom(this.http.post(`${this.jsonServerUrl}/medicos`, doctor));
+      console.log('Médico añadido exitosamente a json-server.');
+
       return true;
     } catch (error) {
       console.error('Error al agregar médico:', error);
@@ -272,7 +235,6 @@ export class DatabaseService {
   }
 
   async updateDoctor(rut: string, doctor: any): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return false;
@@ -290,7 +252,7 @@ export class DatabaseService {
     ];
     try {
       await this.dbInstance.executeSql(sql, data);
-      console.log('Médico actualizado exitosamente');
+      console.log('Médico actualizado exitosamente.');
       return true;
     } catch (error) {
       console.error('Error al actualizar médico:', error);
@@ -299,7 +261,6 @@ export class DatabaseService {
   }
 
   async deleteDoctor(rut: string): Promise<boolean> {
-    await this.ensureDatabaseInitialized();
     if (!this.dbInstance) {
       console.error('Database not initialized!');
       return false;
@@ -307,10 +268,42 @@ export class DatabaseService {
     const sql = `DELETE FROM ${this.doctorTable} WHERE rut = ?`;
     try {
       await this.dbInstance.executeSql(sql, [rut]);
-      console.log(`Médico con RUT ${rut} eliminado exitosamente`);
+      console.log(`Médico con RUT ${rut} eliminado exitosamente.`);
       return true;
     } catch (error) {
       console.error('Error al eliminar médico:', error);
+      return false;
+    }
+  }
+
+  async updateUserStatus(rut: string, activo: number): Promise<boolean> {
+    if (!this.dbInstance) {
+      console.error('Database not initialized!');
+      return false;
+    }
+    const sql = `UPDATE ${this.userTable} SET activo = ? WHERE rut = ?`;
+    try {
+      await this.dbInstance.executeSql(sql, [activo, rut]);
+      console.log(`Usuario con RUT ${rut} actualizado a estado ${activo}`);
+      return true;
+    } catch (error) {
+      console.error('Error al actualizar el estado del usuario:', error);
+      return false;
+    }
+  }
+
+  async deleteUser(rut: string): Promise<boolean> {
+    if (!this.dbInstance) {
+      console.error('Database not initialized!');
+      return false;
+    }
+    const sql = `DELETE FROM ${this.userTable} WHERE rut = ?`;
+    try {
+      await this.dbInstance.executeSql(sql, [rut]);
+      console.log(`Usuario con RUT ${rut} eliminado exitosamente.`);
+      return true;
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
       return false;
     }
   }

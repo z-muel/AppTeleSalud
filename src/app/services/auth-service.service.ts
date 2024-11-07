@@ -14,29 +14,21 @@ export class AuthService {
   async authenticate(rut: string, password: string): Promise<boolean> {
     try {
       const user = await this.dbService.getUserByRut(rut);
-
       if (user && user.contrasena === password && user.activo === 1) {
         this.isAuthenticated = true;
-
-        // Verifica si el usuario es administrador basado en un RUT o una propiedad
-        this.isAdmin = user.isAdmin === 1;  // Considera agregar la propiedad 'isAdmin' a la tabla de usuarios
-
+        this.isAdmin = user.isAdmin === 1; // Asegúrate de que los usuarios tengan esta propiedad en tu DB
         return true;
-      } else {
-        // Agregar mensajes de error detallados (opcional)
-        console.error('Autenticación fallida: credenciales incorrectas o usuario inactivo.');
       }
     } catch (error) {
       console.error('Error al autenticar al usuario:', error);
     }
-
     this.isAuthenticated = false;
     return false;
   }
 
   logout() {
     this.isAuthenticated = false;
-    this.isAdmin = false;  // Reiniciar el estado de administrador
+    this.isAdmin = false;
     this.router.navigate(['/login']);
   }
 
