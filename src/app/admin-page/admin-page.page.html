@@ -1,12 +1,35 @@
-<ion-content class="ion-padding">
-  <ion-list>
-    <ion-button>INGRESARE</ion-button>
-    <ion-button>EXIT</ion-button>
-    <ion-button color="tertiary">Dar baja</ion-button>
-    <ion-button color="danger">Eliminar</ion-button>
-    <ion-button color="success" >HELLO</ion-button>
-  
-  </ion-list>
-  
-   
-</ion-content>
+<div class="admin-container">
+  <h1>Gestión de Usuarios</h1>
+  <div class="usuarios-table-container">
+    <table class="usuarios-table">
+      <thead>
+        <tr>
+          <th>RUT</th>
+          <th>Nombre Completo</th>
+          <th>Correo Electrónico</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuarios">
+          <td>{{ usuario.rut }}</td>
+          <td>{{ usuario.nombreCompleto }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span [ngClass]="{'activo': usuario.activo === 1, 'inactivo': usuario.activo === 0}">
+              {{ usuario.activo === 1 ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button (click)="activateUser(usuario.rut)" *ngIf="usuario.activo === 0" class="btn activar">Activar</button>
+              <button (click)="deactivateUser(usuario.rut)" *ngIf="usuario.activo === 1" class="btn desactivar">Desactivar</button>
+              <button (click)="deleteUser(usuario.rut)" class="btn eliminar">Eliminar</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

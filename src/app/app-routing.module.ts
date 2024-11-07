@@ -36,9 +36,11 @@ const routes: Routes = [
     path: 'main',
     loadChildren: () => import('./main/main.module').then(m => m.MainPageModule),
     canActivate: [AuthGuard], // Protegiendo la ruta
-  },  {
+  },
+  {
     path: 'admin-page',
-    loadChildren: () => import('./admin-page/admin-page.module').then( m => m.AdminPagePageModule)
+    loadChildren: () => import('./admin-page/admin-page.module').then( m => m.AdminPagePageModule),
+    //canActivate: [AuthGuard],
   },
 
 

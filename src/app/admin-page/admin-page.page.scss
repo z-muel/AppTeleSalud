@@ -1,0 +1,61 @@
+.admin-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .usuarios-table-container {
+    overflow-x: auto;
+  }
+  
+  .usuarios-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .usuarios-table th, .usuarios-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .usuarios-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .action-buttons .btn {
+    margin-right: 5px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .btn.activar {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .btn.desactivar {
+    background-color: #ffc107;
+    color: white;
+  }
+  
+  .btn.eliminar {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .activo {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .inactivo {
+    color: red;
+    font-weight: bold;
+  }
+  
